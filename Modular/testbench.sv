@@ -80,7 +80,7 @@ module cnn_top_modular_tb;
 
         #20 rst = 0;
 
-        for (int epoch = 0; epoch < 100; epoch++) begin
+        for (int epoch = 0; epoch < 20; epoch++) begin
             $display("\n=== Epoch %0d ===", epoch);
 
             for (int sample = 0; sample < 2; sample++) begin
@@ -119,7 +119,6 @@ module cnn_top_modular_tb;
                 $display("fc2_out = %0d (≈ %0.2f)", uut.fc2_out, uut.fc2_out / 256.0);
 
                 // Print loss
-
                 err = output_value - label;
                 $display("Prediction: %0d (≈ %.2f) | Label: %0d | Error: %0d",output_value, output_value / 256.0, label, err);
             end

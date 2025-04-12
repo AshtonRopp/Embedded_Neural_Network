@@ -51,7 +51,7 @@ module mac_unit #(
         if (rst)
             result <= 16'sd0;
         else if (enable)
-            result <= sum[23:8]; // Convert from Q16.16 to Q8.8
+            result <= sum >>> 8; // Convert from Q16.16 to Q8.8
     end
 endmodule
 
@@ -304,7 +304,7 @@ module fc_backprop #(
     always_comb begin
         for (int i = 0; i < INPUT_DIM; i++) begin
             grad_mul[i]     = input_vec[i] * dL_dout;
-            update_mul[i]   = learning_rate * grad_mul[i][23:8];
+            update_mul[i]   = learning_rate * (grad_mul[i] >>> 8);
             backprop_mul[i] = weights_in[i] * dL_dout;
         end
         bias_update = learning_rate * dL_dout;
