@@ -5,7 +5,7 @@ module fixed_point_multiplier (
     output logic signed [15:0] result  // Q8.8 result
 );
     logic signed [31:0] mult_full;
-    
+
     always_comb begin
         mult_full = a * b;             // Q8.8 × Q8.8 = Q16.16
         result    = mult_full[23:8];   // Convert back to Q8.8 (right shift by 8 bits)

@@ -47,7 +47,8 @@ module cnn_top_modular_tb;
         clk = 0;
         rst = 1;
         start = 0;
-        learning_rate = 16'sd26;   // Q8.8 ~ 0.1
+        learning_rate = 16'sd2; // Q8.8 = 0.007812
+
 
         // Input #0: All 1s → label 1.0
         for (int i = 0; i < 4; i++)
@@ -79,7 +80,7 @@ module cnn_top_modular_tb;
 
         #20 rst = 0;
 
-        for (int epoch = 0; epoch < 10; epoch++) begin
+        for (int epoch = 0; epoch < 100; epoch++) begin
             $display("\n=== Epoch %0d ===", epoch);
 
             for (int sample = 0; sample < 2; sample++) begin
@@ -97,6 +98,18 @@ module cnn_top_modular_tb;
 
                 // Wait for complete
                 wait (done);
+
+                // Copy updated FC2 weights/bias
+                for (int i = 0; i < 8; i++)
+                    fc2_weights[i] = uut.updated_fc2_weights[i];
+                fc2_bias = uut.updated_fc2_bias;
+
+                // Copy updated FC1 weights/bias
+                for (int o = 0; o < 8; o++) begin
+                    for (int i = 0; i < 16; i++)
+                        fc1_weights[o][i] = uut.updated_fc1_weights[o][i];
+                    fc1_bias[o] = uut.updated_fc1_bias[o];
+                end
 
                 // Debug
                 $display("--- Sample %0d ---", sample);
