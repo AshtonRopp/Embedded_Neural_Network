@@ -591,4 +591,3 @@ module cnn_top_modular (
     endgenerate
 
 endmodule
-

@@ -3,17 +3,31 @@
 This project implements a Convolutional Neural Network (CNN) accelerator in **SystemVerilog**, capable of **training and inference** using **INT16 fixed-point format** and the **ReLU activation function**.
 
 ---
+## 🚀 Project Highlights: Modular CNN Hardware Accelerator
 
-## 🚀 Project Overview
+- **Custom RTL CNN Architecture**  
+  - Includes 4 parallel 3×3 convolution filters  
+  - ReLU activation stage  
+  - Flattening layer  
+  - Fully connected layers with full 8-neuron FC1 and scalar FC2  
 
-- **Network Type**: Convolutional Neural Network (CNN)
-- **Target Use**: Inference + Training
-- **Data Format**: INT16 fixed-point (Q8.8)
-- **Activation**: ReLU
-- **Training Algorithm**: Stochastic Gradient Descent (SGD)
-- **Loss Function**: Mean Squared Error (MSE)
+- **Loop Unrolling and Acceleration**  
+  - MAC product and accumulation loops fully unrolled  
+  - Kernel flattening loop unrolled  
+  - Prepares for future pipelined double-buffering  
 
----
+- **Parameterizable & Modular Design**  
+  - Modular convolution, activation, FC, and backprop blocks  
+  - External weight/bias management for flexible training and inference  
+
+- **Training Support in RTL**  
+  - Implements mean squared error (MSE) loss  
+  - Gradient calculation and backpropagation for both FC1 and FC2  
+  - Learning rate is externally tunable  
+
+- **Optimized MAC Unit**  
+  - Tree-structured reduction with pipelined accumulation  
+  - Parameterized for scalable depth (`MAC_DEPTH`)  
 
 ## 🔹 Functional Blocks
 
@@ -114,3 +128,8 @@ Build a simple CNN with:
 
 ---
 
+
+## Resources
+
+- https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/blob/master/docs/tutorials/FlowTutorial.md
+- https://github.com/zachjs/sv2v
