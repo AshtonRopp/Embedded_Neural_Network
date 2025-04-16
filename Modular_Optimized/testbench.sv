@@ -113,16 +113,9 @@ module cnn_top_modular_tb;
                     fc1_bias[o] = uut.updated_fc1_bias[o];
                 end
 
-                // Debug
-                $display("--- Sample %0d ---", sample);
-                for (int i = 0; i < 8; i++) begin
-                    $display("fc1_out[%0d] = %0d", i, uut.fc1_out[i]);
-                end
-                $display("fc2_out = %0d (≈ %0.2f)", uut.fc2_out, uut.fc2_out / 256.0);
-
                 // Print loss
                 err = output_value - label;
-                $display("Prediction: %0d (≈ %.2f) | Label: %0d | Error: %0d",output_value, output_value / 256.0, label, abs_error);
+                $display("Prediction: %0d (~= %.2f) | Label: %0d | Error: %0d",output_value, output_value / 256.0, label, abs_error);
             end
         end
 

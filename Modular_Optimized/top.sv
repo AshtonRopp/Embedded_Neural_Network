@@ -131,8 +131,8 @@ module conv2d_unit_pipelined #(
     input  logic clk,
     input  logic rst,
     input  logic start,
-    input  var logic signed [15:0] input_feature [IN_SIZE][IN_SIZE],
-    input  var logic signed [15:0] kernel_weights [KERNEL_SIZE][KERNEL_SIZE],
+    input  logic signed [15:0] input_feature [IN_SIZE][IN_SIZE],
+    input  logic signed [15:0] kernel_weights [KERNEL_SIZE][KERNEL_SIZE],
     output logic done,
     output logic signed [15:0] output_feature [IN_SIZE-KERNEL_SIZE+1][IN_SIZE-KERNEL_SIZE+1]
 );
@@ -397,15 +397,12 @@ module fc_backprop #(
                 end
 
                 COMPUTE: begin
-                    weights_out[idx] <= weights_in[idx] - update_mul[idx][23:8];
-                    dL_drelu[idx]    <= backprop_mul[idx][23:8];
-
-                    if (idx == INPUT_DIM - 1) begin
-                        bias_out <= bias_in - bias_update[23:8];
-                        state <= DONE;
-                    end else begin
-                        idx <= idx + 1;
+                    for (int i = 0; i < INPUT_DIM; i++) begin
+                        weights_out[i] <= weights_in[i] - update_mul[i][23:8];
+                        dL_drelu[i]    <= backprop_mul[i][23:8];
                     end
+                    bias_out <= bias_in - bias_update[23:8];
+                    state    <= DONE;
                 end
 
                 DONE: begin

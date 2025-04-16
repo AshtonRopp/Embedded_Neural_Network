@@ -1,5 +1,5 @@
 # Used to convert to usable version of code without processes
-read_verilog -defer Modular_Optimized/top.v
+read_verilog -defer Modular/top.v
 hierarchy -check -top cnn_top_modular
 proc
 opt
