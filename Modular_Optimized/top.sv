@@ -12,6 +12,7 @@ module fixed_point_multiplier (
     end
 endmodule
 
+
 // relu_activation.sv
 module relu_activation (
     input  logic signed [15:0] in,   // Q8.8
@@ -22,12 +23,12 @@ module relu_activation (
     end
 endmodule
 
+
 module mac_unit #(
     parameter MAC_DEPTH = 4
 ) (
     input  logic                  clk,
     input  logic                  rst,
-    input  logic                  enable,
     input  logic signed [15:0]    a [MAC_DEPTH],  // Q8.8
     input  logic signed [15:0]    b [MAC_DEPTH],  // Q8.8
     output logic signed [15:0]    result          // Q8.8
@@ -62,16 +63,7 @@ module mac_unit #(
         end
     endgenerate
 
-    logic signed [31:0] sum;
-    assign sum = sums[LEVELS-1][0];
-
-    // Step 3: Register result (shifted back to Q8.8)
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst)
-            result <= 16'sd0;
-        else if (enable)
-            result <= sum >>> 8;  // Q16.16 → Q8.8
-    end
+    assign result = (sums[LEVELS-1][0]) >>> 8; // Q16.16 → Q8.8
 
 endmodule
 
@@ -79,10 +71,9 @@ endmodule
 module mac_unit_9 (
     input  logic                  clk,
     input  logic                  rst,
-    input  logic                  enable,
     input  logic signed [15:0]    a [9],  // Q8.8
     input  logic signed [15:0]    b [9],  // Q8.8
-    output logic signed [15:0]    result          // Q8.8
+    output logic signed [15:0]    result  // Q8.8
 );
     localparam MAC_DEPTH = 9;
 
@@ -110,16 +101,7 @@ module mac_unit_9 (
         sums[7] = sums[6] + products[MAC_DEPTH-1];
     end
 
-    logic signed [31:0] sum;
-    assign sum = sums[7];
-
-    // Step 3: Register result (shifted back to Q8.8)
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst)
-            result <= 16'sd0;
-        else if (enable)
-            result <= sum >>> 8;  // Q16.16 → Q8.8
-    end
+    assign result = (sums[7]) >>> 8;
 
 endmodule
 
@@ -140,16 +122,8 @@ module conv2d_unit_pipelined #(
     localparam OUT_SIZE  = IN_SIZE - KERNEL_SIZE + 1;
     localparam MAC_DEPTH = KERNEL_SIZE * KERNEL_SIZE;
 
-    logic signed [15:0] a_flat [MAC_DEPTH];
+    // Flatten kernel weights once
     logic signed [15:0] b_flat [MAC_DEPTH];
-    logic signed [15:0] mac_result;
-    logic mac_enable;
-
-    // -------------------------------
-    // Flatten kernel weights
-    // -------------------------------
-    localparam KERNEL_AREA = KERNEL_SIZE * KERNEL_SIZE;
-
     genvar m, n;
     generate
         for (m = 0; m < KERNEL_SIZE; m++) begin : FLATTEN_M
@@ -160,82 +134,48 @@ module conv2d_unit_pipelined #(
         end
     endgenerate
 
-    // -------------------------------
-    // FSM control logic
-    // -------------------------------
-    typedef enum logic [1:0] {
-        IDLE,
-        LOAD_PATCH,
-        COMPUTE,
-        WRITE_RESULT
-    } state_t;
+    // One MAC unit per output pixel
+    logic signed [15:0] mac_inputs_a [OUT_SIZE][OUT_SIZE][MAC_DEPTH];
+    logic signed [15:0] mac_outputs [OUT_SIZE][OUT_SIZE];
 
-    state_t state;
-    int x_idx, y_idx;
+    genvar i, j, k;
+    generate
+        for (i = 0; i < OUT_SIZE; i++) begin : ROW
+            for (j = 0; j < OUT_SIZE; j++) begin : COL
+                for (k = 0; k < MAC_DEPTH; k++) begin : PATCH
+                    localparam int mi = k / KERNEL_SIZE;
+                    localparam int ni = k % KERNEL_SIZE;
+                    always_comb begin
+                        mac_inputs_a[i][j][k] = input_feature[i + mi][j + ni];
+                    end
+                end
 
-    always_ff @(posedge clk or posedge rst) begin
+                mac_unit_9 mac_inst (
+                    .clk(clk),
+                    .rst(rst),
+                    .a(mac_inputs_a[i][j]),
+                    .b(b_flat),
+                    .result(mac_outputs[i][j])
+                );
+            end
+        end
+    endgenerate
+
+    // Assign results
+    always_ff @(posedge clk) begin
         if (rst) begin
-            state       <= IDLE;
-            done        <= 0;
-            x_idx       <= 0;
-            y_idx       <= 0;
-            mac_enable  <= 0;
+            done <= 0;
+        end else if (start) begin
+            for (int i = 0; i < OUT_SIZE; i++) begin
+                for (int j = 0; j < OUT_SIZE; j++) begin
+                    output_feature[i][j] <= mac_outputs[i][j];
+                end
+            end
+            done <= 1;
         end else begin
-            case (state)
-                IDLE: begin
-                    done <= 0;
-                    if (start) begin
-                        x_idx <= 0;
-                        y_idx <= 0;
-                        state <= LOAD_PATCH;
-                    end
-                end
-
-                LOAD_PATCH: begin
-                    for (int m = 0; m < KERNEL_SIZE; m++) begin
-                        for (int n = 0; n < KERNEL_SIZE; n++) begin
-                            a_flat[m * KERNEL_SIZE + n] = input_feature[x_idx + m][y_idx + n];
-                        end
-                    end
-                    mac_enable <= 1;
-                    state <= COMPUTE;
-                end
-
-                COMPUTE: begin
-                    mac_enable <= 0;  // 1-cycle pulse
-                    state <= WRITE_RESULT;
-                end
-
-                WRITE_RESULT: begin
-                    output_feature[x_idx][y_idx] <= mac_result;
-
-                    if (y_idx < OUT_SIZE - 1) begin
-                        y_idx <= y_idx + 1;
-                        state <= LOAD_PATCH;
-                    end else if (x_idx < OUT_SIZE - 1) begin
-                        x_idx <= x_idx + 1;
-                        y_idx <= 0;
-                        state <= LOAD_PATCH;
-                    end else begin
-                        state <= IDLE;
-                        done <= 1;
-                    end
-                end
-            endcase
+            done <= 0;
         end
     end
-
-    // -------------------------------
-    // MAC Unit
-    // -------------------------------
-    mac_unit_9 mac_inst (
-        .clk(clk),
-        .rst(rst),
-        .enable(mac_enable),
-        .a(a_flat),
-        .b(b_flat),
-        .result(mac_result)
-    );
 
 endmodule
 
@@ -272,55 +212,28 @@ module fc_layer #(
     output logic signed [15:0]    output_val              // Q8.8
 );
 
-    logic mac_enable;
     logic signed [15:0] mac_result;
 
-    typedef enum logic [1:0] {
-        IDLE,
-        COMPUTE,
-        ADD_BIAS,
-        DONE
-    } state_t;
-
-    state_t state;
-
-    always_ff @(posedge clk or posedge rst) begin
+    always_ff @(posedge clk) begin
         if (rst) begin
-            state <= IDLE;
-            mac_enable <= 0;
+            output_val <= 32'b0;
             done <= 0;
-        end else begin
-            case (state)
-                IDLE: begin
-                    done <= 0;
-                    if (start) begin
-                        mac_enable <= 1;
-                        state <= COMPUTE;
-                    end
-                end
-
-                COMPUTE: begin
-                    mac_enable <= 0; // 1-cycle pulse
-                    state <= ADD_BIAS;
-                end
-
-                ADD_BIAS: begin
-                    output_val <= mac_result + bias;
-                    state <= DONE;
-                end
-
-                DONE: begin
-                    done <= 1;
-                    state <= IDLE;
-                end
-            endcase
+        end
+        else begin
+            if (start) begin
+                output_val <= mac_result + bias;
+                done <= 1;
+            end
+            else begin
+                output_val <= mac_result + bias;
+                done <= 0;
+            end
         end
     end
 
     mac_unit #(.MAC_DEPTH(INPUT_DIM)) mac_inst (
         .clk(clk),
         .rst(rst),
-        .enable(mac_enable),
         .a(input_vec),
         .b(weights),
         .result(mac_result)
@@ -357,15 +270,6 @@ module fc_backprop #(
     output logic signed [15:0] dL_drelu     [INPUT_DIM], // ∂L/∂ReLU input
     output logic done
 );
-    typedef enum logic [1:0] {
-        IDLE,
-        COMPUTE,
-        DONE
-    } state_t;
-
-    state_t state;
-    logic [3:0] idx; // 4-bit counter
-    logic update_bias_done;
 
     logic signed [31:0] grad_mul     [INPUT_DIM];
     logic signed [31:0] update_mul   [INPUT_DIM];
@@ -381,35 +285,32 @@ module fc_backprop #(
         bias_update = learning_rate * dL_dout;
     end
 
-    always_ff @(posedge clk or posedge rst) begin
+    always_ff @(posedge clk) begin
         if (rst) begin
-            state <= IDLE;
-            idx   <= 0;
-            done  <= 0;
-            update_bias_done <= 0;
-        end else begin
-            case (state)
-                IDLE: begin
-                    done <= 0;
-                    idx  <= 0;
-                    update_bias_done <= 0;
-                    state <= start ? COMPUTE : IDLE;
-                end
-
-                COMPUTE: begin
-                    for (int i = 0; i < INPUT_DIM; i++) begin
-                        weights_out[i] <= weights_in[i] - update_mul[i][23:8];
-                        dL_drelu[i]    <= backprop_mul[i][23:8];
-                    end
+            for (int i = 0; i < INPUT_DIM; i++) begin
+                weights_out[i] <= 16'd0;
+                dL_drelu[i]    <= 16'd0;
+                bias_out <= 16'd0;
+            end
+            done <= 0;
+        end
+        else begin
+            if (start) begin
+                for (int i = 0; i < INPUT_DIM; i++) begin
+                    weights_out[i] <= weights_in[i] - update_mul[i][23:8];
+                    dL_drelu[i]    <= backprop_mul[i][23:8];
                     bias_out <= bias_in - bias_update[23:8];
-                    state    <= DONE;
                 end
-
-                DONE: begin
-                    done <= 1;
-                    state <= IDLE;
+                done <= 1;
+            end
+            else begin
+                for (int i = 0; i < INPUT_DIM; i++) begin
+                    weights_out[i] <= 16'd0;
+                    dL_drelu[i]    <= 16'd0;
+                    bias_out <= 16'd0;
                 end
-            endcase
+                done <= 0;
+            end
         end
     end
 endmodule
