@@ -118,8 +118,9 @@ This project implements a Convolutional Neural Network (CNN) accelerator in **Sy
 
 
 ## Results
-- 65% reduction in power
-- 2% reduction in size
+### Optimization Part A
+- x% reduction in power
+- x% reduction in size
 - WNS from -2.52 to 0.17
 
 ## Resources

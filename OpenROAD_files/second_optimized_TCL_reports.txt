@@ -1,0 +1,22 @@
+>>> report_design_area
+Design area 3489451 u^2 48% utilization.
+
+>>> report_worst_slack
+... report_tns
+... report_wns
+worst slack -1.07
+tns -68.37
+wns -1.07
+
+>>> report_power
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             7.59e-02   5.33e-03   4.04e-07   8.13e-02   0.6%
+Combinational          7.67e+00   5.04e+00   3.00e-05   1.27e+01  99.3%
+Clock                  2.50e-03   2.45e-03   2.87e-08   4.95e-03   0.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  7.75e+00   5.05e+00   3.04e-05   1.28e+01 100.0%
+                          60.5%      39.5%       0.0%

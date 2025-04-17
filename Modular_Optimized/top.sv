@@ -1,4 +1,4 @@
-// fixed_point_multiplier.sv
+// Q8.8 Fixed Point Multiplier
 module fixed_point_multiplier (
     input  logic signed [15:0] a,    // Q8.8
     input  logic signed [15:0] b,    // Q8.8
@@ -13,7 +13,7 @@ module fixed_point_multiplier (
 endmodule
 
 
-// relu_activation.sv
+// Rectified Linear Unit (ReLU) Module
 module relu_activation (
     input  logic signed [15:0] in,   // Q8.8
     output logic signed [15:0] out   // Q8.8
@@ -24,14 +24,15 @@ module relu_activation (
 endmodule
 
 
+// Parameterized MAC Unit
 module mac_unit #(
     parameter MAC_DEPTH = 4
 ) (
-    input  logic                  clk,
-    input  logic                  rst,
-    input  logic signed [15:0]    a [MAC_DEPTH],  // Q8.8
-    input  logic signed [15:0]    b [MAC_DEPTH],  // Q8.8
-    output logic signed [15:0]    result          // Q8.8
+    input  logic               clk,
+    input  logic               rst,
+    input  logic signed [15:0] a [MAC_DEPTH],  // Q8.8
+    input  logic signed [15:0] b [MAC_DEPTH],  // Q8.8
+    output logic signed [15:0] result          // Q8.8
 );
 
     // Q16.16 products
@@ -67,13 +68,13 @@ module mac_unit #(
 
 endmodule
 
-
+// 9x9 MAC Unit
 module mac_unit_9 (
-    input  logic                  clk,
-    input  logic                  rst,
-    input  logic signed [15:0]    a [9],  // Q8.8
-    input  logic signed [15:0]    b [9],  // Q8.8
-    output logic signed [15:0]    result  // Q8.8
+    input  logic               clk,
+    input  logic               rst,
+    input  logic signed [15:0] a [9],  // Q8.8
+    input  logic signed [15:0] b [9],  // Q8.8
+    output logic signed [15:0] result  // Q8.8
 );
     localparam MAC_DEPTH = 9;
 
@@ -106,16 +107,17 @@ module mac_unit_9 (
 endmodule
 
 
+// Convolution Unit
 module conv2d_unit_pipelined #(
     parameter IN_SIZE     = 4,
     parameter KERNEL_SIZE = 3
 ) (
-    input  logic clk,
-    input  logic rst,
-    input  logic start,
+    input  logic               clk,
+    input  logic               rst,
+    input  logic               start,
     input  logic signed [15:0] input_feature [IN_SIZE][IN_SIZE],
     input  logic signed [15:0] kernel_weights [KERNEL_SIZE][KERNEL_SIZE],
-    output logic done,
+    output logic               done,
     output logic signed [15:0] output_feature [IN_SIZE-KERNEL_SIZE+1][IN_SIZE-KERNEL_SIZE+1]
 );
 
@@ -145,9 +147,7 @@ module conv2d_unit_pipelined #(
                 for (k = 0; k < MAC_DEPTH; k++) begin : PATCH
                     localparam int mi = k / KERNEL_SIZE;
                     localparam int ni = k % KERNEL_SIZE;
-                    always_comb begin
-                        mac_inputs_a[i][j][k] = input_feature[i + mi][j + ni];
-                    end
+                    assign mac_inputs_a[i][j][k] = input_feature[i + mi][j + ni];
                 end
 
                 mac_unit_9 mac_inst (
@@ -180,7 +180,7 @@ module conv2d_unit_pipelined #(
 endmodule
 
 
-// relu_layer_2d.sv
+// 2D ReLU Module
 module relu_layer_2d #(
     parameter HEIGHT = 2,
     parameter WIDTH  = 2
@@ -198,18 +198,18 @@ module relu_layer_2d #(
 endmodule
 
 
-// fc_layer.sv
+// Fully Connected Layer
 module fc_layer #(
     parameter INPUT_DIM = 4  // e.g., 4 inputs → 1 output
 ) (
-    input  logic                  clk,
-    input  logic                  rst,
-    input  logic                  start,
-    input  logic signed [15:0]    input_vec [INPUT_DIM],  // Q8.8
-    input  logic signed [15:0]    weights   [INPUT_DIM],  // Q8.8
-    input  logic signed [15:0]    bias,                   // Q8.8
-    output logic                  done,
-    output logic signed [15:0]    output_val              // Q8.8
+    input  logic               clk,
+    input  logic               rst,
+    input  logic               start,
+    input  logic signed [15:0] input_vec [INPUT_DIM], // Q8.8
+    input  logic signed [15:0] weights   [INPUT_DIM], // Q8.8
+    input  logic signed [15:0] bias,                  // Q8.8
+    output logic               done,
+    output logic signed [15:0] output_val             // Q8.8
 );
 
     logic signed [15:0] mac_result;
@@ -241,18 +241,18 @@ module fc_layer #(
 endmodule
 
 
-// loss_gradient.sv
+// Loss Gradient Module
 module loss_gradient (
-    input  logic signed [15:0] prediction,  // Q8.8
-    input  logic signed [15:0] label,       // Q8.8
-    output logic signed [15:0] dL_dout      // Q8.8
+    input  logic signed [15:0] prediction, // Q8.8
+    input  logic signed [15:0] label,      // Q8.8
+    output logic signed [15:0] dL_dout     // Q8.8
 );
     // ∂L/∂output = output - label (MSE derivative: (ŷ - y))
     assign dL_dout = prediction - label;
 endmodule
 
 
-// fc_backprop.sv
+// Backpropagation Unit
 module fc_backprop #(
     parameter INPUT_DIM = 4,
     parameter LOG_INPUT_DIM = 2
@@ -316,16 +316,15 @@ module fc_backprop #(
 endmodule
 
 
-// cnn_top_modular.sv
 // Modular CNN with external weight inputs
 module cnn_top_modular (
     input  logic clk,
     input  logic rst,
     input  logic start,
 
-    input  logic signed [15:0] input_image [4][4],   // Q8.8
-    input  logic signed [15:0] label,                // Q8.8
-    input  logic signed [15:0] learning_rate,        // Q8.8
+    input  logic signed [15:0] input_image [4][4],  // Q8.8
+    input  logic signed [15:0] label,               // Q8.8
+    input  logic signed [15:0] learning_rate,       // Q8.8
 
     input  logic signed [15:0] conv_weights [4][3][3],
     input  logic signed [15:0] fc1_weights  [8][16],
@@ -333,7 +332,7 @@ module cnn_top_modular (
     input  logic signed [15:0] fc2_weights  [8],
     input  logic signed [15:0] fc2_bias,
 
-    output logic signed [15:0] output_value,         // Q8.8
+    output logic signed [15:0] output_value,        // Q8.8
     output logic done
 );
 
@@ -365,6 +364,7 @@ module cnn_top_modular (
     logic signed [15:0] updated_fc1_bias [FC1];
     logic fc1_bp_done [FC1];
 
+    // Keep track of each stage's completion
     always_comb begin
         conv_all_done = 1;
         for (int i = 0; i < CONV; i++) begin

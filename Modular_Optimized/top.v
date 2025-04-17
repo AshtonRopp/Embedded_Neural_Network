@@ -33,7 +33,6 @@ endmodule
 module mac_unit (
 	clk,
 	rst,
-	enable,
 	a,
 	b,
 	result
@@ -42,10 +41,9 @@ module mac_unit (
 	parameter MAC_DEPTH = 4;
 	input wire clk;
 	input wire rst;
-	input wire enable;
 	input wire signed [(MAC_DEPTH * 16) - 1:0] a;
 	input wire signed [(MAC_DEPTH * 16) - 1:0] b;
-	output reg signed [15:0] result;
+	output wire signed [15:0] result;
 	reg signed [31:0] products [0:MAC_DEPTH - 1];
 	always @(*) begin
 		if (_sv2v_0)
@@ -78,19 +76,12 @@ module mac_unit (
 			end
 		end
 	endgenerate
-	wire signed [31:0] sum;
-	assign sum = sums[LEVELS - 1][0];
-	always @(posedge clk or posedge rst)
-		if (rst)
-			result <= 16'sd0;
-		else if (enable)
-			result <= sum >>> 8;
+	assign result = sums[LEVELS - 1][0] >>> 8;
 	initial _sv2v_0 = 0;
 endmodule
 module mac_unit_9 (
 	clk,
 	rst,
-	enable,
 	a,
 	b,
 	result
@@ -98,10 +89,9 @@ module mac_unit_9 (
 	reg _sv2v_0;
 	input wire clk;
 	input wire rst;
-	input wire enable;
 	input wire signed [143:0] a;
 	input wire signed [143:0] b;
-	output reg signed [15:0] result;
+	output wire signed [15:0] result;
 	localparam MAC_DEPTH = 9;
 	reg signed [31:0] products [8:0];
 	always @(*) begin
@@ -127,13 +117,7 @@ module mac_unit_9 (
 		sums[6] = sums[4] + sums[5];
 		sums[7] = sums[6] + products[8];
 	end
-	wire signed [31:0] sum;
-	assign sum = sums[7];
-	always @(posedge clk or posedge rst)
-		if (rst)
-			result <= 16'sd0;
-		else if (enable)
-			result <= sum >>> 8;
+	assign result = sums[7] >>> 8;
 	initial _sv2v_0 = 0;
 endmodule
 module conv2d_unit_pipelined (
@@ -156,11 +140,7 @@ module conv2d_unit_pipelined (
 	output reg signed [((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) >= (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) ? ((((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) - (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0))) + 1) * 16) + (((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) * 16) - 1) : ((((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) - (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1))) + 1) * 16) + (((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) * 16) - 1)):((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) >= (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) * 16 : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) * 16)] output_feature;
 	localparam OUT_SIZE = (IN_SIZE - KERNEL_SIZE) + 1;
 	localparam MAC_DEPTH = KERNEL_SIZE * KERNEL_SIZE;
-	reg signed [(MAC_DEPTH * 16) - 1:0] a_flat;
 	wire signed [(MAC_DEPTH * 16) - 1:0] b_flat;
-	wire signed [15:0] mac_result;
-	reg mac_enable;
-	localparam KERNEL_AREA = KERNEL_SIZE * KERNEL_SIZE;
 	genvar _gv_m_1;
 	genvar _gv_n_1;
 	generate
@@ -173,69 +153,49 @@ module conv2d_unit_pipelined (
 			end
 		end
 	endgenerate
-	reg [1:0] state;
-	reg signed [31:0] x_idx;
-	reg signed [31:0] y_idx;
-	always @(posedge clk or posedge rst)
-		if (rst) begin
-			state <= 2'd0;
+	wire signed [(MAC_DEPTH * 16) - 1:0] mac_inputs_a [0:OUT_SIZE - 1][0:OUT_SIZE - 1];
+	wire signed [15:0] mac_outputs [0:OUT_SIZE - 1][0:OUT_SIZE - 1];
+	genvar _gv_i_2;
+	genvar _gv_j_3;
+	genvar _gv_k_1;
+	generate
+		for (_gv_i_2 = 0; _gv_i_2 < OUT_SIZE; _gv_i_2 = _gv_i_2 + 1) begin : ROW
+			localparam i = _gv_i_2;
+			for (_gv_j_3 = 0; _gv_j_3 < OUT_SIZE; _gv_j_3 = _gv_j_3 + 1) begin : COL
+				localparam j = _gv_j_3;
+				for (_gv_k_1 = 0; _gv_k_1 < MAC_DEPTH; _gv_k_1 = _gv_k_1 + 1) begin : PATCH
+					localparam k = _gv_k_1;
+					localparam signed [31:0] mi = k / KERNEL_SIZE;
+					localparam signed [31:0] ni = k % KERNEL_SIZE;
+					assign mac_inputs_a[i][j][((MAC_DEPTH - 1) - k) * 16+:16] = input_feature[((((IN_SIZE - 1) - (i + mi)) * IN_SIZE) + ((IN_SIZE - 1) - (j + ni))) * 16+:16];
+				end
+				mac_unit_9 mac_inst(
+					.clk(clk),
+					.rst(rst),
+					.a(mac_inputs_a[i][j]),
+					.b(b_flat),
+					.result(mac_outputs[i][j])
+				);
+			end
+		end
+	endgenerate
+	always @(posedge clk)
+		if (rst)
 			done <= 0;
-			x_idx <= 0;
-			y_idx <= 0;
-			mac_enable <= 0;
+		else if (start) begin
+			begin : sv2v_autoblock_1
+				reg signed [31:0] i;
+				for (i = 0; i < OUT_SIZE; i = i + 1)
+					begin : sv2v_autoblock_2
+						reg signed [31:0] j;
+						for (j = 0; j < OUT_SIZE; j = j + 1)
+							output_feature[((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) >= (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) ? ((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? i : ((IN_SIZE - KERNEL_SIZE) + 0) - i) * (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? 1 - ((IN_SIZE - KERNEL_SIZE) + 0) : (IN_SIZE - KERNEL_SIZE) + 1)) + (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? j : ((IN_SIZE - KERNEL_SIZE) + 0) - j) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) - ((((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? i : ((IN_SIZE - KERNEL_SIZE) + 0) - i) * (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? 1 - ((IN_SIZE - KERNEL_SIZE) + 0) : (IN_SIZE - KERNEL_SIZE) + 1)) + (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? j : ((IN_SIZE - KERNEL_SIZE) + 0) - j)) - (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)))) * 16+:16] <= mac_outputs[i][j];
+					end
+			end
+			done <= 1;
 		end
 		else
-			case (state)
-				2'd0: begin
-					done <= 0;
-					if (start) begin
-						x_idx <= 0;
-						y_idx <= 0;
-						state <= 2'd1;
-					end
-				end
-				2'd1: begin
-					begin : sv2v_autoblock_1
-						reg signed [31:0] m;
-						for (m = 0; m < KERNEL_SIZE; m = m + 1)
-							begin : sv2v_autoblock_2
-								reg signed [31:0] n;
-								for (n = 0; n < KERNEL_SIZE; n = n + 1)
-									a_flat[((MAC_DEPTH - 1) - ((m * KERNEL_SIZE) + n)) * 16+:16] = input_feature[((((IN_SIZE - 1) - (x_idx + m)) * IN_SIZE) + ((IN_SIZE - 1) - (y_idx + n))) * 16+:16];
-							end
-					end
-					mac_enable <= 1;
-					state <= 2'd2;
-				end
-				2'd2: begin
-					mac_enable <= 0;
-					state <= 2'd3;
-				end
-				2'd3: begin
-					output_feature[((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) >= (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) ? ((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? x_idx : ((IN_SIZE - KERNEL_SIZE) + 0) - x_idx) * (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? 1 - ((IN_SIZE - KERNEL_SIZE) + 0) : (IN_SIZE - KERNEL_SIZE) + 1)) + (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? y_idx : ((IN_SIZE - KERNEL_SIZE) + 0) - y_idx) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) : ((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (IN_SIZE - KERNEL_SIZE) + 0 : 0)) - ((((0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? x_idx : ((IN_SIZE - KERNEL_SIZE) + 0) - x_idx) * (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? 1 - ((IN_SIZE - KERNEL_SIZE) + 0) : (IN_SIZE - KERNEL_SIZE) + 1)) + (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? y_idx : ((IN_SIZE - KERNEL_SIZE) + 0) - y_idx)) - (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((((IN_SIZE - KERNEL_SIZE) + 0) + (((IN_SIZE - KERNEL_SIZE) + 0) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0)))) - 1) : ((1 - ((IN_SIZE - KERNEL_SIZE) + 0)) * ((IN_SIZE - KERNEL_SIZE) + 1)) + ((((IN_SIZE - KERNEL_SIZE) + 0) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)) : (0 >= ((IN_SIZE - KERNEL_SIZE) + 0) ? (((IN_SIZE - KERNEL_SIZE) + 1) * (1 - ((IN_SIZE - KERNEL_SIZE) + 0))) + ((IN_SIZE - KERNEL_SIZE) - 1) : (((IN_SIZE - KERNEL_SIZE) + 1) * ((IN_SIZE - KERNEL_SIZE) + 1)) - 1)))) * 16+:16] <= mac_result;
-					if (y_idx < (OUT_SIZE - 1)) begin
-						y_idx <= y_idx + 1;
-						state <= 2'd1;
-					end
-					else if (x_idx < (OUT_SIZE - 1)) begin
-						x_idx <= x_idx + 1;
-						y_idx <= 0;
-						state <= 2'd1;
-					end
-					else begin
-						state <= 2'd0;
-						done <= 1;
-					end
-				end
-			endcase
-	mac_unit_9 mac_inst(
-		.clk(clk),
-		.rst(rst),
-		.enable(mac_enable),
-		.a(a_flat),
-		.b(b_flat),
-		.result(mac_result)
-	);
+			done <= 0;
 endmodule
 module relu_layer_2d (
 	in_feature,
@@ -280,41 +240,23 @@ module fc_layer (
 	input wire signed [15:0] bias;
 	output reg done;
 	output reg signed [15:0] output_val;
-	reg mac_enable;
 	wire signed [15:0] mac_result;
-	reg [1:0] state;
-	always @(posedge clk or posedge rst)
+	always @(posedge clk)
 		if (rst) begin
-			state <= 2'd0;
-			mac_enable <= 0;
+			output_val <= 32'b00000000000000000000000000000000;
 			done <= 0;
 		end
-		else
-			case (state)
-				2'd0: begin
-					done <= 0;
-					if (start) begin
-						mac_enable <= 1;
-						state <= 2'd1;
-					end
-				end
-				2'd1: begin
-					mac_enable <= 0;
-					state <= 2'd2;
-				end
-				2'd2: begin
-					output_val <= mac_result + bias;
-					state <= 2'd3;
-				end
-				2'd3: begin
-					done <= 1;
-					state <= 2'd0;
-				end
-			endcase
+		else if (start) begin
+			output_val <= mac_result + bias;
+			done <= 1;
+		end
+		else begin
+			output_val <= mac_result + bias;
+			done <= 0;
+		end
 	mac_unit #(.MAC_DEPTH(INPUT_DIM)) mac_inst(
 		.clk(clk),
 		.rst(rst),
-		.enable(mac_enable),
 		.a(input_vec),
 		.b(weights),
 		.result(mac_result)
@@ -359,9 +301,6 @@ module fc_backprop (
 	output reg signed [15:0] bias_out;
 	output reg signed [(INPUT_DIM * 16) - 1:0] dL_drelu;
 	output reg done;
-	reg [1:0] state;
-	reg [3:0] idx;
-	reg update_bias_done;
 	reg signed [31:0] grad_mul [0:INPUT_DIM - 1];
 	reg signed [31:0] update_mul [0:INPUT_DIM - 1];
 	reg signed [31:0] backprop_mul [0:INPUT_DIM - 1];
@@ -380,36 +319,43 @@ module fc_backprop (
 		end
 		bias_update = learning_rate * dL_dout;
 	end
-	always @(posedge clk or posedge rst)
+	always @(posedge clk)
 		if (rst) begin
-			state <= 2'd0;
-			idx <= 0;
-			done <= 0;
-			update_bias_done <= 0;
-		end
-		else
-			case (state)
-				2'd0: begin
-					done <= 0;
-					idx <= 0;
-					update_bias_done <= 0;
-					state <= (start ? 2'd1 : 2'd0);
-				end
-				2'd1: begin
-					weights_out[((INPUT_DIM - 1) - idx) * 16+:16] <= weights_in[((INPUT_DIM - 1) - idx) * 16+:16] - update_mul[idx][23:8];
-					dL_drelu[((INPUT_DIM - 1) - idx) * 16+:16] <= backprop_mul[idx][23:8];
-					if (idx == (INPUT_DIM - 1)) begin
-						bias_out <= bias_in - bias_update[23:8];
-						state <= 2'd2;
+			begin : sv2v_autoblock_2
+				reg signed [31:0] i;
+				for (i = 0; i < INPUT_DIM; i = i + 1)
+					begin
+						weights_out[((INPUT_DIM - 1) - i) * 16+:16] <= 16'd0;
+						dL_drelu[((INPUT_DIM - 1) - i) * 16+:16] <= 16'd0;
+						bias_out <= 16'd0;
 					end
-					else
-						idx <= idx + 1;
-				end
-				2'd2: begin
-					done <= 1;
-					state <= 2'd0;
-				end
-			endcase
+			end
+			done <= 0;
+		end
+		else if (start) begin
+			begin : sv2v_autoblock_3
+				reg signed [31:0] i;
+				for (i = 0; i < INPUT_DIM; i = i + 1)
+					begin
+						weights_out[((INPUT_DIM - 1) - i) * 16+:16] <= weights_in[((INPUT_DIM - 1) - i) * 16+:16] - update_mul[i][23:8];
+						dL_drelu[((INPUT_DIM - 1) - i) * 16+:16] <= backprop_mul[i][23:8];
+						bias_out <= bias_in - bias_update[23:8];
+					end
+			end
+			done <= 1;
+		end
+		else begin
+			begin : sv2v_autoblock_4
+				reg signed [31:0] i;
+				for (i = 0; i < INPUT_DIM; i = i + 1)
+					begin
+						weights_out[((INPUT_DIM - 1) - i) * 16+:16] <= 16'd0;
+						dL_drelu[((INPUT_DIM - 1) - i) * 16+:16] <= 16'd0;
+						bias_out <= 16'd0;
+					end
+			end
+			done <= 0;
+		end
 	initial _sv2v_0 = 0;
 endmodule
 module cnn_top_modular (
