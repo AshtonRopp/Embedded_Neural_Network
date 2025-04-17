@@ -3,7 +3,11 @@
 This project implements a Convolutional Neural Network (CNN) accelerator in **SystemVerilog**, capable of **training and inference** using **INT16 fixed-point format** and the **ReLU activation function**.
 
 ---
-## Project Highlights: Modular CNN Hardware Accelerator
+## Project Highlights
+- **Utilized Physical Design Software**
+  - Synopsis Design Compiler for preliminary area metrics
+  - OpenROAD for PNR, clock tree, and PPA metrics
+  - Vivado and ModelSim for simulation
 
 - **Custom RTL CNN Architecture**
   - Includes 4 parallel 3×3 convolution filters
@@ -12,18 +16,16 @@ This project implements a Convolutional Neural Network (CNN) accelerator in **Sy
   - Fully connected layers with full 8-neuron FC1 and scalar FC2
 
 - **Loop Unrolling and Acceleration**
-  - MAC product and accumulation loops fully unrolled
   - Kernel flattening loop unrolled
-  - Prepares for future pipelined double-buffering
+  - Parallel processing via MAC units
 
 - **Parameterizable & Modular Design**
-  - Modular convolution, activation, FC, and backprop blocks
+  - Modular convolution, activation, FC, and backpropagation blocks
   - External weight/bias management for flexible training and inference
 
 - **Training Support in RTL**
   - Implements mean squared error (MSE) loss
   - Gradient calculation and backpropagation for both FC1 and FC2
-  - Learning rate is externally tunable
 
 - **Optimized MAC Unit**
   - Tree-structured reduction with pipelined accumulation
@@ -32,56 +34,45 @@ This project implements a Convolutional Neural Network (CNN) accelerator in **Sy
 ## Functional Blocks
 
 ### Forward Pass
-- [ ] Input Buffer
-- [ ] Convolution Unit (MAC array)
-- [ ] ReLU Activation Unit
-- [ ] Pooling Layer (optional)
-- [ ] Fully Connected (FC) Layer
-- [ ] Output Buffer
+- Input Buffer
+- Convolution Unit (MAC array)
+- ReLU Activation Unit
+- Fully Connected (FC) Layer
+- Output Buffer
 
 ### Backward Pass (Training)
-- [ ] Error Computation (Loss Function)
-- [ ] Backpropagation through FC layer
-- [ ] Backpropagation through Conv layer
-- [ ] ReLU Derivative Unit
-- [ ] Gradient Buffers
+- Error Computation (Loss Function)
+- Backpropagation through FC layer
+- Backpropagation through Conv layer
+- ReLU Derivative Unit
+- Gradient Buffers
 
 ### Weight Update
-- [ ] Learning Rate Control
-- [ ] Weight Update Logic: `w -= η * ∂L/∂w`
-- [ ] Bias Update Logic
+- Learning Rate Control
+- Weight Update Logic: `w -= η * ∂L/∂w`
+- Bias Update Logic
 
 ---
 
 ## Control and Pipelining
 
-- [ ] FSM for Training Steps:
+- FSM for Training Steps:
   - Load Inputs
   - Forward Pass
   - Error Computation
   - Backward Pass
   - Weight Update
-- [ ] Pipelined MAC Units
-
----
-
-## Memory Architecture
-
-- [ ] Weight Memory
-- [ ] Bias Memory
-- [ ] Gradient Memory
-- [ ] Intermediate Activation Buffers
+- Pipelined MAC Units
 
 ---
 
 ## Interfaces
 
-- [ ] Input/Output Interfaces:
+- Input/Output Interfaces:
   - Load Input Data and Labels
   - Initialize Weights and Biases
-  - Read Output Predictions
+  - Read Output Predictions and Weights
   - Training Control Signals (Start, Reset, Learning Rate)
-- [ ] Debug Signals
 
 ---
 
@@ -98,14 +89,9 @@ This project implements a Convolutional Neural Network (CNN) accelerator in **Sy
 
 ## Verification and Testing
 
-- [ ] Unit Testbenches for:
-  - MAC
-  - ReLU
-  - Convolution
-  - Gradient Update
-- [ ] System-Level Testbench
-  - Example: XOR or 2×2 image task
-- [ ] Compare with Python (NumPy/PyTorch) reference implementation
+- System-Level Testbench
+  - Both classes included in each epochs
+  - Accurate predictions occur after ~18 epochs
 
 
 ## Future Optimizations
