@@ -104,7 +104,7 @@ To get some more reasonable power usage results, we can instead implement the sy
 - We see 1.42 times higher power usage by the optimized version
 - The unoptimized version uses more LUT, but less DSP.
 - From these results, the 5 times speed factor still dominates power and area increases
-- The images below show the implemented logic
+- The images below show the implemented logic on an FPGA
 
 | ![](Images/FPGA_Unopt.png) |
 |:--:|
