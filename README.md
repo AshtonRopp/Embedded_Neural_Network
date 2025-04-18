@@ -1,4 +1,4 @@
-# SystemVerilog CNN
+## Introduction
 
 This project implements a Convolutional Neural Network (CNN) accelerator in System Verilog. View the [PowerPoint](FinalPresentation.pdf) for a quick summary. See the [OpenROAD](#openroad-results) and [Vivado](#vivado-fpga-results) results sections for a full analysis.
 
