@@ -28,8 +28,6 @@ endmodule
 module mac_unit #(
     parameter MAC_DEPTH = 4
 ) (
-    input  logic               clk,
-    input  logic               rst,
     input  logic signed [15:0] a [MAC_DEPTH],  // Q8.8
     input  logic signed [15:0] b [MAC_DEPTH],  // Q8.8
     output logic signed [15:0] result          // Q8.8
@@ -70,8 +68,6 @@ endmodule
 
 // 9x9 MAC Unit
 module mac_unit_9 (
-    input  logic               clk,
-    input  logic               rst,
     input  logic signed [15:0] a [9],  // Q8.8
     input  logic signed [15:0] b [9],  // Q8.8
     output logic signed [15:0] result  // Q8.8
@@ -151,8 +147,6 @@ module conv2d_unit_pipelined #(
                 end
 
                 mac_unit_9 mac_inst (
-                    .clk(clk),
-                    .rst(rst),
                     .a(mac_inputs_a[i][j]),
                     .b(b_flat),
                     .result(mac_outputs[i][j])
@@ -232,8 +226,6 @@ module fc_layer #(
     end
 
     mac_unit #(.MAC_DEPTH(INPUT_DIM)) mac_inst (
-        .clk(clk),
-        .rst(rst),
         .a(input_vec),
         .b(weights),
         .result(mac_result)
