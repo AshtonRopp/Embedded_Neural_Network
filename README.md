@@ -120,6 +120,7 @@ To get some more reasonable power usage results, we can instead implement the sy
 
 ## Future Optimizations
 
+- Resolve timing issues using OpenROAD flow scripts
 - Implement clock gating and resource reuse for further PPA gains
 - Improved architecture for lower power usage
 - Further utilize OpenROAD timing, clock tree, and layout features
